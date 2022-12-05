@@ -1,0 +1,27 @@
+{
+    "logging": {
+        "level": 20
+    },
+    "global": {
+        "api_base_url": "https://api.twelvedata.com",
+        "api_key": "",
+        "pairs": [
+            "USD/ARS",
+            "USD/CRC",
+            "USD/MXN",
+            "USD/EUR",
+            "USD/AUD",
+            "USD/CAD",
+            "USD/COP",
+            "USD/GBR",
+            "USD/KRW",
+            "USD/JPY",
+            "USD/VND",
+            "USD/TWD",
+            "USD/THB",
+            "USD/PEN",
+            "USD/CLP"
+        ],
+        "polling_rate_seconds": 1800
+    }
+}
