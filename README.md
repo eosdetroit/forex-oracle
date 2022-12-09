@@ -2,7 +2,9 @@
 
 For retrieval of forex pair pricing data.
 
-Currently dumps latest available data to output/latest. Does not process this or write to network via cleos yet.
+Currently dumps latest available from twelvedata API to output folder, transforms to delphioracle payload, and calls delphioracle::write.
+
+If no arguments are provided on launch, it will only retrieve data. 
 
 ## Getting started
 1.) `cp example.config.json config.json`
@@ -13,7 +15,12 @@ Currently dumps latest available data to output/latest. Does not process this or
 
 
 ## Run
+
+Data retrieval mode:
 `python main.py`
+
+Write data to chain:
+`python main.py [account_name] [permission] [cleos_password]`
 
 ## Logging
 
