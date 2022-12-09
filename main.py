@@ -37,7 +37,9 @@ if len(sys.argv) == 4:
     account_name = sys.argv[1]
     permission = sys.argv[2]
     wallet_password = sys.argv[3]
+    publish_mode = True
 else:
+    publish_mode = False
     print('\nNo arguments provided. Running in data retrieval mode. Writing data to chain is disabled.\n To enable writing to chain pass arguments. ex:\n  python main.py [ACCOUNT_NAME] [PERMISSION] [CLEOS_WALLET_PASSWORD]\n')
     sleep(3)
     print('Starting...')
@@ -125,10 +127,16 @@ def main():
             continue
 
         oracle_data = update_latest_data(pair_data)
-        if len(sys.argv) == 4:
-            oracle_write(oracle_data)
 
-        sleep(polling_rate_seconds)
+        if publish_mode:
+            i = 0
+            while(i<polling_rate_seconds):
+                oracle_write(oracle_data)
+                sleep(60)
+                i += 60
+
+        else:
+            sleep(polling_rate_seconds)
 
 
 if __name__ == '__main__':
