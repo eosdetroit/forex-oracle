@@ -51,21 +51,15 @@ def unlock_wallet():
     bash = Popen(command, stdout=PIPE, shell=True, executable=bash_path)
     output = bash.communicate()
 
-def oracle_write(oracle_data):
+def oracle_write(payload):
     unlock_wallet()
 
-    payload = {"owner": f"{account_name}", "quotes": []}
-
-    for pair in oracle_data:
-        value = float(oracle_data[pair]['close'])
-        value = int(value*10000)
-        payload['quotes'].append({"pair": pair, "value": value})
-
-    cmd = f"cleos -u {chain_api_url} push action delphioracle write '{json.dumps(payload)}' --permission {account_name}@{permission}"
+    cmd = f"cleos -u {chain_api_url} push action delphioracle write '{json.dumps(payload).lower()}' --permission {account_name}@{permission}"
 
     command = f'{cmd}'
     bash = Popen(command, stdout=PIPE, shell=True, executable=bash_path)
     output = bash.communicate()
+    sleep(11)
 
 
 def get_pair_data(pairs):
@@ -104,6 +98,7 @@ def update_latest_data(pair_data):
     with open('output/latest.raw', 'w') as file:
         file.write(json.dumps(output))
 
+    # map to onchain symbols
     oracle_data = {}
     for pair in output:
         if pair in onchain_symbols.keys():
@@ -111,10 +106,18 @@ def update_latest_data(pair_data):
         else:
             logging.warning(f'No mapping found for: {pair}')
 
-    with open('output/latest.mapped', 'w') as file:
-        file.write(json.dumps(output))
+    # action data payload
+    payload = {"owner": f"{account_name}", "quotes": []}
 
-    return oracle_data
+    for pair in oracle_data:
+        value = float(oracle_data[pair]['close'])
+        value = int(value*10000)
+        payload['quotes'].append({"pair": pair, "value": value})
+
+    with open('output/payload.last', 'w') as file:
+        file.write(json.dumps(payload).lower())
+
+    return payload
 
 
 def main():
@@ -126,12 +129,12 @@ def main():
             sleep(300)
             continue
 
-        oracle_data = update_latest_data(pair_data)
+        payload = update_latest_data(pair_data)
 
         if publish_mode:
             i = 0
             while(i<polling_rate_seconds):
-                oracle_write(oracle_data)
+                oracle_write(payload)
                 sleep(60)
                 i += 60
 
