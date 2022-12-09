@@ -50,7 +50,7 @@ def unlock_wallet():
     output = bash.communicate()
 
 def oracle_write(oracle_data):
-    #unlock_wallet()
+    unlock_wallet()
 
     payload = {"owner": f"{account_name}", "quotes": []}
 
