@@ -3,6 +3,7 @@
         "level": 20
     },
     "global": {
+        "chain_api_url":"https://api.eos.detroitledger.tech",
         "api_base_url": "https://api.twelvedata.com",
         "api_key": "",
         "pairs": [
@@ -20,8 +21,28 @@
             "USD/TWD",
             "USD/THB",
             "USD/PEN",
-            "USD/CLP"
+            "USD/CLP",
+            "USD/CNY"
         ],
         "polling_rate_seconds": 1800
+    },
+    "onchain_symbols":
+    {
+        "USD/ARS":"USDTARS",
+        "USD/CRC":"USDTCRC",
+        "USD/MXN":"USDTMXN",
+        "USD/EUR":"USDTEUR",
+        "USD/AUD":"USDTAUD",
+        "USD/CAD":"USDTCAD",
+        "USD/COP":"USDTCOP",
+        "USD/GBR":"USDTGBR",
+        "USD/KRW":"USDTKRW",
+        "USD/JPY":"USDTJPY",
+        "USD/VND":"USDTVND",
+        "USD/TWD":"USDTTWD",
+        "USD/THB":"USDTTHB",
+        "USD/PEN":"USDTSOL",
+        "USD/CLP":"USDTCLP",
+        "USD/CNY":"USDTCNY"
     }
 }
