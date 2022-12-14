@@ -22,6 +22,9 @@ api_key                 = env['global']['api_key']
 pairs                   = env['global']['pairs']
 polling_rate_seconds    = env['global']['polling_rate_seconds']
 onchain_symbols         = env['onchain_symbols']
+account_name = ''
+permission = ''
+wallet_password = ''
 
 os.makedirs('logs', exist_ok=True)
 os.makedirs('output', exist_ok=True)
@@ -95,7 +98,7 @@ def update_latest_data(pair_data):
         output[pair]['datetime'] = pair_data[pair]['values'][0]['datetime']
         logging.debug(pair_data[pair])
 
-    with open('output/latest.raw', 'w') as file:
+    with open('output/latest.raw.json', 'w') as file:
         file.write(json.dumps(output))
 
     # map to onchain symbols
@@ -114,7 +117,7 @@ def update_latest_data(pair_data):
         value = int(value*10000)
         payload['quotes'].append({"pair": pair, "value": value})
 
-    with open('output/payload.last', 'w') as file:
+    with open('output/payload.json', 'w') as file:
         file.write(json.dumps(payload).lower())
 
     return payload
