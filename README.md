@@ -17,12 +17,14 @@ If no arguments are provided on launch, it will only retrieve data.
 ## Run
 
 Data retrieval mode:
-will dump oracle payload to file.
+> will dump oracle payload to file.
+
 Run: `python main.py`
 
 Publish mode:
-will write oracle payload to chain.
-`python main.py [account_name] [permission] [cleos_password]`
+> will write oracle payload to chain.
+
+Run: `python main.py [account_name] [permission] [cleos_password]`
 
 ## Logging
 
