@@ -6,7 +6,12 @@ from requests.adapters import HTTPAdapter, Retry
 import json, sys
 from datetime import datetime
 import logging
+import socket
+import pushover
+from slack_sdk.webhook import WebhookClient
 bash_path='/bin/bash'
+
+hostname = socket.gethostname()
 
 if not os.path.exists('config.json'): sys.exit(f'Configuration file does not exist.\nRename example.config.json file to config.json')
 
@@ -29,7 +34,26 @@ wallet_password = ''
 os.makedirs('logs', exist_ok=True)
 os.makedirs('output', exist_ok=True)
 logging.basicConfig(filename=f'logs/oracle.log', level=env['logging']['level'])
-logging.info(f'[{datetime.now()}] Starting oracle...')
+
+pushover_client = None
+pushover_config_path = ".pushover"
+
+if os.path.exists(pushover_config_path):
+    try:
+        pushover_client = pushover.PushoverClient(pushover_config_path)
+        logging.info("Pushover client initialized successfully.")
+    except Exception as e:
+        logging.error(f"Failed to initialize Pushover client: {e}")
+else:
+    logging.warning(f"Pushover config file not found at {pushover_config_path}. Notifications via Pushover will be disabled.")
+
+slack_webhook_url = ""
+slack_webhook = WebhookClient(slack_webhook_url) if slack_webhook_url else None
+
+if not slack_webhook:
+    logging.warning("Slack webhook URL not set. Notifications via Slack will be disabled.")
+
+
 
 s = requests.Session()
 retries = Retry(total=3, backoff_factor=1)
@@ -46,6 +70,20 @@ else:
     print('\nNo arguments provided. Running in data retrieval mode. Writing data to chain is disabled.\n To enable writing to chain pass arguments. ex:\n  python main.py [ACCOUNT_NAME] [PERMISSION] [CLEOS_WALLET_PASSWORD]\n')
     sleep(3)
     print('Starting...')
+
+def send_notification(message: str, message_title: str, message_priority: int, message_expire: int, message_retry: int):
+    if pushover_client:
+        try:
+            pushover_client.send_message(message=message, title=message_title, priority=message_priority, expire=message_expire, retry=message_retry)
+        except Exception as e:
+            logging.error(f"Failed to send Pushover notification: {e}")
+
+    if slack_webhook:
+        try:
+            slack_webhook.send(text=f"{message_title}: {message}")
+            logging.debug("Notification sent to Slack.")
+        except Exception as e:
+            logging.error(f"Failed to send Slack notification: {e}")
 
 def unlock_wallet():
     cmd = f'cleos wallet unlock --password {wallet_password}'
@@ -101,7 +139,6 @@ def update_latest_data(pair_data):
     with open('output/latest.raw.json', 'w') as file:
         file.write(json.dumps(output))
 
-    # map to onchain symbols
     oracle_data = {}
     for pair in output:
         if pair in onchain_symbols.keys():
@@ -109,7 +146,6 @@ def update_latest_data(pair_data):
         else:
             logging.warning(f'No mapping found for: {pair}')
 
-    # action data payload
     payload = {"owner": f"{account_name}", "quotes": []}
 
     for pair in oracle_data:
@@ -124,6 +160,8 @@ def update_latest_data(pair_data):
 
 
 def main():
+    logging.info(f'[{datetime.now()}] Starting oracle...')
+    send_notification(f'Starting...',f'[{hostname}] Starting Forex Oracle', -1, 3600, 0)
     while(True):
         pair_data = get_pair_data(pairs)
 

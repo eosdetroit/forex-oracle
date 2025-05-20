@@ -1,0 +1,2 @@
+pushover==0.5
+slack_sdk==3.26.2
