@@ -110,20 +110,26 @@ def get_pair_data(pairs):
 
     url = f'{api_base_url}/time_series?symbol={symbols}&&interval=1min&apikey={api_key}'
 
-    response = s.get(url)
-    response_data = json.loads(response.text)
+    try:
+        response = s.get(url)
+        response_data = json.loads(response.text)
+        
+        if response.status_code != 200:
+            logging.error(f'[{datetime.now()}] status_code: {response.status_code} received from API. Retries exhausted.')
+            return None
+
+        status_error = [x for x in response_data if response_data[x]['status'] != 'ok']
+
+        if status_error:
+            logging.error(f'[{datetime.now()}] Error while retrieving pairs: {status_error} - \n{response_data}')
+            return None
+
+        return response_data
+        
+    except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+        logging.error(f'[{datetime.now()}] Error in API request: {str(e)}')
+        return None
     
-    if response.status_code != 200:
-        logging.error(f'[{datetime.now()}] status_code: {response.status_code} received from API. Retries exhausted.')
-        return None
-
-    status_error = [x for x in response_data if response_data[x]['status'] != 'ok']
-
-    if status_error:
-        logging.error(f'[{datetime.now()}] Error while retrieving pairs: {status_error} - \n{response_data}')
-        return None
-
-    return response_data
 
 def update_latest_data(pair_data):
     output = {}
